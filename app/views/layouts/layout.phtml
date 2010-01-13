@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>SMASH! Ticketbooth</title>
+	<link href="/ticketbooth/css/styles.css" rel="stylesheet" type="text/css" />
+
+	<script type="text/javascript" src="/ticketbooth/js/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$('#query').focus();
+		});
+	</script>
+	
+</head>
+<body>
+
+	<div id="header">
+		<h1><a href="/ticketbooth">SMASH! Ticketbooth</a></h1>
+		<?php
+			$username = User::getUsername();
+			$stats    = Tickets::getStats();
+			echo $this->partial('userStatus.phtml', Array('username' => $username, 'processed_tickets' => $stats['processed_ticket_count'], 'total_tickets' => $stats['paid_ticket_count'])); ?>
+	</div>
+
+	<div id="main">
+		<?= $this->layout()->content ?>
+		<br class="clear" />
+	</div>
+
+	<div id="footer">
+		<p>Copyright &copy; SMASH! 2009</p>
+	</div>
+
+</body>
+</html>

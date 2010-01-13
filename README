@@ -1,0 +1,14 @@
+Effulgent
+------------
+
+Eventually, an EventBrite-compatible on-the-day ticket-scanning system for use by conventions and other events.
+
+Currently, still very much the application called "Ticketbooth" that was developed for SMASH! (http://smash.org.au) in order to work with its internal ticketing system. This is currently being refactored to match new requirements:
+
+  - Integration with EventBrite's export.
+  - Easy distribution and setup via booting from a USB key.
+  - Easy or automatic rendezvous and server election with other Effulgent systems on the local network.
+  - Easy or automatic recovery following a failure of a server.
+  - Statistics for on-the-day review.
+
+Information about the project can be found at http://robhoward.id.au/projects/effulgent

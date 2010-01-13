@@ -1,0 +1,199 @@
+<?php
+	$tickets = $this->tickets;
+?>
+<ul class="instructions">
+	<?php
+		if (count($tickets) == 1) {
+			if (!empty($_GET['from_multi'])) {
+				$number = '3';
+			} else {
+				$number = '2';
+			}
+
+			?>
+			<li><span class="number"><?php echo $number; ?>.</span> Do these details match the name on their ticket,<br/>
+			    <span class="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>or on their ID if they don't have a ticket?<br />
+				<span class="number">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>(Call for help if they don't.)</li>
+			<?php
+
+		} else {
+			// many results
+			?><li><span class="number">2.</span> Choose a ticket entry.</li><?php
+		}
+	?>
+</ul>
+
+<div class="search-container">
+	<?php
+		if (empty($tickets)) {
+			?><p class="warning">Your search failed to find any tickets. <a href="/ticketbooth">Go back.</a></p><?php
+		}
+
+		// just the one, display a confirmation screen
+		if (count($tickets) == 1) {
+			$ticket = reset($tickets);
+
+			$ticket_type = 'INVALID';
+			switch ($ticket['ticket_type_id']) {
+				case 1: $ticket_type = 'Weekend'; break;
+				case 2: $ticket_type = 'Saturday Only'; break;
+				case 3: $ticket_type = 'Sunday Only'; break;
+			}
+
+			// warnings
+			if ($this->flagNoPayment) {
+				?><p class="warning"><strong>Warning:</strong> This ticket has not been paid for, or may have been refunded! Please ask for assistance.</p><?php
+			}
+
+			if ($this->flagWrongDay) {
+				?><p class="warning">This ticket is for the <strong>wrong day</strong>; this is a <?php echo $ticket_type; ?> pass, but today is <?php echo date('l', time()); ?>.</p><?php
+			}
+
+			if ($this->flagScannedBefore) {
+				?><p class="warning"><strong>Warning:</strong> This ticket has been scanned before! Please ask for assistance.</p>
+					<p>Previous scans:</p>
+					<?php
+					$fields = Array(
+							'scan_id'       => 'Scan #',
+							'scan_time'     => 'Scanned',
+							'reg_id'        => 'Reg. ID',
+							'barcode'       => 'Barcode',
+							'username'      => 'Username',
+						  );
+
+					?><table>
+						<tr><?php
+							foreach ($fields as $field => $description) {
+								?><th><?php echo $description; ?></th><?php
+							}//end foreach ($fields)
+						?></tr><?php
+						foreach ($this->scans as $row_idx => $row) {
+							?><tr><?php
+							foreach ($row as $field => $value) {
+								?><td><?php
+									switch ($field) {
+										case 'scan_time':
+										case 'confirm_time':
+											if (empty($row[$field])) {
+												echo '&nbsp;';
+											} else {
+												echo date('Y/m/d H:i:s', $row[$field]);
+											}
+										break;
+										default:
+											echo $row[$field];
+										break;
+									}//end switch ($field)
+								?></td><?php
+							}
+							?></tr><?php
+						}
+					?></table>
+				<?php
+			}//end if(scannedbefore)
+
+			//flagDuplicateTicket
+			?>
+			<div class="ticket-details-container">
+				<dl>
+					<dt>Reg. ID</dt><dd><?php echo $ticket['reg_id']; ?></dd>
+					<dt>Full Name</dt><dd><?php echo $ticket['full_name']; ?></dd>
+					<dt>Pass</dt><?php
+						// HACK: Hardcoded
+						switch ($ticket['ticket_type_id']) {
+							case 1:
+								?><dd class="ticket-red">Weekend</dd><?php
+							break;
+							case 2:
+								?><dd class="ticket-yellow">Saturday Only</dd><?php
+							break;
+							case 3:
+								?><dd class="ticket-red">Sunday Only</dd><?php
+							break;
+						}
+					?>
+					<dt>Paid?</dt><dd><?php echo ($ticket['received_payment'] ? 'Yes' : '<strong style="color: #f00;">NO PAYMENT RECEIVED</strong>'); ?></dd>
+					<dt>Age</dt><dd><?php
+						if ($ticket['dob'] == '1970/1/1' || $ticket['dob'] == '1970/01/01') {
+							echo '--';
+						} else {
+							echo (2009 - ((int) date('Y', strtotime($ticket['dob']))));
+						}
+					?></dd>
+					<dt>Sex</dt><dd><?php echo (!empty($ticket['sex']) ? $ticket['sex'] : '--'); ?></dd>
+					<?php
+						// Some extras we don't want to show up usually
+						if ($this->flagIsAdmin) {
+							?>
+							<dt>Email</dt><dd><?php echo $ticket['email']; ?></dd>
+							<dt>Address</dt><dd><?php echo $ticket['address']; ?></dd>
+							<dt>Phone</dt><dd><?php echo $ticket['phone']; ?></dd>
+							<dt>Notes</dt><dd><?php echo $ticket['notes']; ?></dd>
+							<?php
+						}
+					?>
+				</dl>
+				<form action="/ticketbooth/tickets/confirm" method="post">
+					<div class="button-container">
+						<input type="hidden" name="reg_id" value="<?php echo $ticket['reg_id']; ?>" />
+						<input class="confirm" name="confirm" type="submit" value="Yes" />
+						<input class="cancel" name="cancel" type="submit" value="No" />
+					</div>
+				</form>
+			</div>
+			<?php
+
+		} else {
+			// lots; list them all
+			foreach ($tickets as $ticket) {
+				?>
+				<div class="ticket-details-container">
+					<a href="/ticketbooth/tickets/search?from_multi=1&query=<?php echo $ticket['reg_id']; ?>">
+						<dl>
+							<dt>Reg. ID</dt><dd><?php echo $ticket['reg_id']; ?></dd>
+							<dt>Full Name</dt><dd><?php echo $ticket['full_name']; ?></dd>
+							<dt>Pass</dt><?php
+								// HACK: Hardcoded
+								switch ($ticket['ticket_type_id']) {
+									case 1:
+										?><dd class="ticket-red">Weekend</dd><?php
+									break;
+									case 2:
+										?><dd class="ticket-yellow">Saturday Only</dd><?php
+									break;
+									case 3:
+										?><dd class="ticket-red">Sunday Only</dd><?php
+									break;
+								}
+							?>
+							<dt>Paid?</dt><dd><?php echo ($ticket['received_payment'] ? 'Yes' : '<strong style="color: #f00;">NO PAYMENT RECEIVED</strong>'); ?></dd>
+							<dt>Age</dt><dd><?php
+								if ($ticket['dob'] == '1970/1/1' || $ticket['dob'] == '1970/01/01') {
+									echo '--';
+								} else {
+									echo (2009 - ((int) date('Y', strtotime($ticket['dob']))));
+								}
+							?></dd>
+							<dt>Sex</dt><dd><?php echo (!empty($ticket['sex']) ? $ticket['sex'] : '--'); ?></dd>
+							<?php
+								// Some extras we don't want to show up usually
+								if ($this->flagIsAdmin) {
+									?>
+									<dt>Email</dt><dd><?php echo $ticket['email']; ?></dd>
+									<dt>Address</dt><dd><?php echo $ticket['address']; ?></dd>
+									<dt>Phone</dt><dd><?php echo $ticket['phone']; ?></dd>
+									<dt>Notes</dt><dd><?php echo $ticket['notes']; ?></dd>
+									<?php
+								}
+							?>
+						</dl>
+						<br class="clear" />
+					</a>
+				</div>
+				<?php
+			}//end foreach (tickets)
+
+		}//end else
+
+	?>
+</div>

@@ -1,0 +1,9 @@
+TODO: Something more than an absolute bare-bones explanation. :-)
+
+1) Run download_zend.sh
+2) Edit the .htaccess and modify "/path/to/" to point to the directory the file is sitting in.
+3) Use htpasswd to add a user (eg. 'admin' or 'booth') to .htpasswd
+4) Import database_defaults.sql into a MySQL database.
+5) Change app/config/main.ini to use the correct database connection details.
+6) Come up with your own set of registration records (there's a single test entry for reference).
+6) Harrass damncabbage@gmail.com if it doesn't work.

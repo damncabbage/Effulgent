@@ -1,0 +1,27 @@
+<?php
+	if ($this->flagGiveRed) {
+		?><p class="message">Done! Give them a <span class="ticket-red">Weekend / Sunday</span> pass.</p><?php
+	}
+	if ($this->flagGiveYellow) {
+		?><p class="message">Done! Give them a <span class="ticket-yellow">Saturday</span> pass.</p><?php
+	}
+?>
+
+<ul class="instructions">
+	<li><span class="number">1.</span> Scan a ticket, or type in a name.</li>
+</ul>
+
+<div class="search-container">
+	<?php
+		if ($this->flagFailedSearch) {
+			?><p class="warning">Your search failed to find any tickets.</p><?php
+		}
+		if ($this->flagCouldNotScan) {
+			?><p class="warning"><strong>Ack!</strong> The ticket couldn't be scanned! Please ask for assistance.</p><?php
+		}
+	?>
+	<form action="/ticketbooth/tickets/search" method="get">
+		<input id="query" name="query" class="text" type="text" value="" />
+		<input name="search" class="submit" type="submit" value="Go!" />
+	</form>
+</div>
